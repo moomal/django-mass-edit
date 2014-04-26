@@ -34,7 +34,6 @@ from django.db import transaction, models
 from django.contrib.admin.util import unquote
 from django.contrib.admin import helpers
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404, HttpResponseRedirect
@@ -84,7 +83,7 @@ class MassAdmin(admin.ModelAdmin):
         """
         opts = obj._meta
 
-        msg = _('Selected %(name)s were changed successfully.') % {'name': force_unicode(opts.verbose_name_plural), 'obj': force_unicode(obj)}
+        msg = _('Selected %(name)s were changed successfully.') % {'name': opts.verbose_name_plural, 'obj': obj}
 
         self.message_user(request, msg)
         return HttpResponseRedirect("../../%s/" % self.model._meta.module_name)
@@ -136,7 +135,7 @@ class MassAdmin(admin.ModelAdmin):
             raise PermissionDenied
 
         if obj is None:
-            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
+            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': opts.verbose_name, 'key': object_id})
 
         if request.method == 'POST' and request.POST.has_key("_saveasnew"):
             return self.add_view(request, form_url='../add/')
@@ -230,7 +229,7 @@ class MassAdmin(admin.ModelAdmin):
         #    media = media + inline_admin_formset.media
             
         context = {
-            'title': _('Change %s') % force_unicode(opts.verbose_name),
+            'title': _('Change %s') % opts.verbose_name,
             'adminform': adminForm,
             'object_id': object_id,
             'original': obj,
