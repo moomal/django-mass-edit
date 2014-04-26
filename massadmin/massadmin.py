@@ -76,7 +76,7 @@ class MassAdmin(admin.ModelAdmin):
             if not (varname.startswith('_') or callable(var)):
                 self.__dict__[varname] = var
         super(MassAdmin, self).__init__(model, admin_site)
-                        		
+                                
     def response_change(self, request, obj):
         """
         Determines the HttpResponse for the change_view stage.
@@ -87,7 +87,7 @@ class MassAdmin(admin.ModelAdmin):
 
         self.message_user(request, msg)
         return HttpResponseRedirect("../../%s/" % self.model._meta.module_name)
-                        		
+                                
     def render_mass_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         opts = self.model._meta
         app_label = opts.app_label
@@ -122,7 +122,7 @@ class MassAdmin(admin.ModelAdmin):
         # Allow model to hide some fields for mass admin
         exclude_fields = getattr(self.admin_obj, "massadmin_exclude", ())
         queryset = getattr(self.admin_obj, "massadmin_queryset", self.queryset)(request)
-                        		
+                                
         object_ids = comma_separated_object_ids.split(',')
         object_id = object_ids[0]
 
@@ -144,59 +144,59 @@ class MassAdmin(admin.ModelAdmin):
         formsets = []
         if request.method == 'POST':
             # commit only when all forms are valid
-    	    #with transaction.commit_manually():
-        	try:
-                    objects_count = 0
-                    changed_count = 0
-                    objects = queryset.filter(pk__in = object_ids)
-                    for obj in objects:
-                        objects_count += 1
-                        form = ModelForm(request.POST, request.FILES, instance=obj)
-                        
-                        exclude = []
-                        for fieldname, field in form.fields.items():
-                            mass_change_checkbox = '_mass_change_%s' % fieldname
-                            if not (request.POST.has_key(mass_change_checkbox) and request.POST[mass_change_checkbox] == 'on'):
-                                exclude.append(fieldname)
-                        for exclude_fieldname in exclude:
-                            del form.fields[exclude_fieldname]
-                            
-                        if form.is_valid():
-                            form_validated = True
-                            new_object = self.save_form(request, form, change=True)
-                        else:
-                            form_validated = False
-                            new_object = obj
-                        prefixes = {}
-                        for FormSet in self.get_formsets(request, new_object):
-                            prefix = FormSet.get_default_prefix()
-                            prefixes[prefix] = prefixes.get(prefix, 0) + 1
-                            if prefixes[prefix] != 1:
-                                prefix = "%s-%s" % (prefix, prefixes[prefix])
-                            mass_change_checkbox = '_mass_change_%s' % prefix
-                            if request.POST.has_key(mass_change_checkbox) and request.POST[mass_change_checkbox] == 'on':
-                                formset = FormSet(request.POST, request.FILES, instance=new_object, prefix=prefix)
-                                formsets.append(formset)
-                                
-                        if all_valid(formsets) and form_validated:
-			    #self.admin_obj.save_model(request, new_object, form, change=True)
-                            self.save_model(request, new_object, form, change=True)
-                            form.save_m2m()
-                            for formset in formsets:
-                                self.save_formset(request, form, formset, change=True)
-                                                
-                            change_message = self.construct_change_message(request, form, formsets)
-                            self.log_change(request, new_object, change_message)
-                            changed_count += 1
-                            
-                    if False and changed_count != objects_count:
-                        raise Exception('Some of the selected objects could\'t be changed.')
-                    transaction.commit()    
-                    return self.response_change(request, new_object)
+            #with transaction.commit_manually():
+            try:
+                objects_count = 0
+                changed_count = 0
+                objects = queryset.filter(pk__in = object_ids)
+                for obj in objects:
+                    objects_count += 1
+                    form = ModelForm(request.POST, request.FILES, instance=obj)
                     
-                finally:
-                    general_error = unicode(sys.exc_info()[1])
-                    transaction.rollback()
+                    exclude = []
+                    for fieldname, field in form.fields.items():
+                        mass_change_checkbox = '_mass_change_%s' % fieldname
+                        if not (request.POST.has_key(mass_change_checkbox) and request.POST[mass_change_checkbox] == 'on'):
+                            exclude.append(fieldname)
+                    for exclude_fieldname in exclude:
+                        del form.fields[exclude_fieldname]
+                        
+                    if form.is_valid():
+                        form_validated = True
+                        new_object = self.save_form(request, form, change=True)
+                    else:
+                        form_validated = False
+                        new_object = obj
+                    prefixes = {}
+                    for FormSet in self.get_formsets(request, new_object):
+                        prefix = FormSet.get_default_prefix()
+                        prefixes[prefix] = prefixes.get(prefix, 0) + 1
+                        if prefixes[prefix] != 1:
+                            prefix = "%s-%s" % (prefix, prefixes[prefix])
+                        mass_change_checkbox = '_mass_change_%s' % prefix
+                        if request.POST.has_key(mass_change_checkbox) and request.POST[mass_change_checkbox] == 'on':
+                            formset = FormSet(request.POST, request.FILES, instance=new_object, prefix=prefix)
+                            formsets.append(formset)
+                            
+                    if all_valid(formsets) and form_validated:
+            #self.admin_obj.save_model(request, new_object, form, change=True)
+                        self.save_model(request, new_object, form, change=True)
+                        form.save_m2m()
+                        for formset in formsets:
+                            self.save_formset(request, form, formset, change=True)
+                                            
+                        change_message = self.construct_change_message(request, form, formsets)
+                        self.log_change(request, new_object, change_message)
+                        changed_count += 1
+                        
+                if False and changed_count != objects_count:
+                    raise Exception('Some of the selected objects could\'t be changed.')
+                transaction.commit()    
+                return self.response_change(request, new_object)
+                
+            finally:
+                general_error = unicode(sys.exc_info()[1])
+                transaction.rollback()
                     
         form = ModelForm(instance=obj)
         prefixes = {}
@@ -219,14 +219,6 @@ class MassAdmin(admin.ModelAdmin):
                 if field.unique:
                     unique_fields.append(field_name)
             except: pass
-        
-        # Buggy! Use at your own risk
-        #inline_admin_formsets = []
-        #for inline, formset in zip(self.inline_instances, formsets):
-        #    fieldsets = list(inline.get_fieldsets(request, obj))
-        #    inline_admin_formset = helpers.InlineAdminFormSet(inline, formset, fieldsets)
-        #    inline_admin_formsets.append(inline_admin_formset)
-        #    media = media + inline_admin_formset.media
             
         context = {
             'title': _('Change %s') % opts.verbose_name,
