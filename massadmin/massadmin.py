@@ -195,7 +195,7 @@ class MassAdmin(admin.ModelAdmin):
                 return self.response_change(request, new_object)
                 
             finally:
-                general_error = unicode(sys.exc_info()[1])
+                general_error = sys.exc_info()[1]
                 transaction.rollback()
                     
         form = ModelForm(instance=obj)
