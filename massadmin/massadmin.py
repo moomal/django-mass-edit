@@ -156,7 +156,7 @@ class MassAdmin(admin.ModelAdmin):
                     exclude = []
                     for fieldname, field in form.fields.items():
                         mass_change_checkbox = '_mass_change_%s' % fieldname
-                        if not (request.POST.has_key(mass_change_checkbox) and request.POST[mass_change_checkbox] == 'on'):
+                        if not (mass_change_checkbox in request.POST and request.POST[mass_change_checkbox] == 'on'):
                             exclude.append(fieldname)
                     for exclude_fieldname in exclude:
                         del form.fields[exclude_fieldname]
@@ -174,7 +174,7 @@ class MassAdmin(admin.ModelAdmin):
                         if prefixes[prefix] != 1:
                             prefix = "%s-%s" % (prefix, prefixes[prefix])
                         mass_change_checkbox = '_mass_change_%s' % prefix
-                        if request.POST.has_key(mass_change_checkbox) and request.POST[mass_change_checkbox] == 'on':
+                        if mass_change_checkbox in request.POST and request.POST[mass_change_checkbox] == 'on':
                             formset = FormSet(request.POST, request.FILES, instance=new_object, prefix=prefix)
                             formsets.append(formset)
                             
@@ -227,7 +227,7 @@ class MassAdmin(admin.ModelAdmin):
             'original': obj,
             'unique_fields': unique_fields,
             'exclude_fields': exclude_fields,
-            'is_popup': request.REQUEST.has_key('_popup'),
+            'is_popup': '_popup' in request.REQUEST,
             'media': mark_safe(media),
             #'inline_admin_formsets': inline_admin_formsets,
             'errors': helpers.AdminErrorList(form, formsets),
