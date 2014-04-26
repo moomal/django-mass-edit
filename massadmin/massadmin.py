@@ -137,7 +137,7 @@ class MassAdmin(admin.ModelAdmin):
         if obj is None:
             raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': opts.verbose_name, 'key': object_id})
 
-        if request.method == 'POST' and request.POST.has_key("_saveasnew"):
+        if request.method == 'POST' and "_saveasnew" in request.POST:
             return self.add_view(request, form_url='../add/')
 
         ModelForm = self.get_form(request, obj)
