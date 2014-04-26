@@ -144,8 +144,8 @@ class MassAdmin(admin.ModelAdmin):
         formsets = []
         if request.method == 'POST':
             # commit only when all forms are valid
-            with transaction.commit_manually():
-                try:
+    	    #with transaction.commit_manually():
+        	try:
                     objects_count = 0
                     changed_count = 0
                     objects = queryset.filter(pk__in = object_ids)
