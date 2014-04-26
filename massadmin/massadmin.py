@@ -72,7 +72,7 @@ class MassAdmin(admin.ModelAdmin):
             self.admin_obj = admin_site._registry[model]
         except KeyError:
             raise Exception('Model not registered with the admin site.')
-        for (varname, var) in self.admin_obj.__class__.__dict__.iteritems():
+        for (varname, var) in self.admin_obj.__class__.__dict__.items():
             if not (varname.startswith('_') or callable(var)):
                 self.__dict__[varname] = var
         super(MassAdmin, self).__init__(model, admin_site)
